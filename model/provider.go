@@ -54,7 +54,7 @@ func GetModelProvider(typ string, subType string, clientId string, clientSecret 
 	} else if typ == "Claude" {
 		p, err = NewClaudeModelProvider(subType, clientSecret)
 	} else if typ == "OpenRouter" {
-		// p, err = NewOpenRouterModelProvider(subType, clientSecret, temperature, topP)
+		p, err = NewOpenRouterModelProvider(subType, clientSecret, temperature, topP)
 	} else if typ == "Ernie" {
 		// p, err = NewErnieModelProvider(subType, clientId, clientSecret, temperature, topP, presencePenalty)
 	} else if typ == "iFlytek" {
