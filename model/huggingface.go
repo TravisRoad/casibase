@@ -61,8 +61,18 @@ func (p *HuggingFaceModelProvider) QueryText(question string, writer io.Writer, 
 	}
 
 	// get token count and price
-	// TODO: huggingface doesn't return token count
 	mr := new(ModelResult)
+	promptTokenCount, err := GetTokenSize(p.subType, question)
+	if err != nil {
+		return nil, err
+	}
+	mr.PromptTokenCount = promptTokenCount
+	responseTokenCount, err := GetTokenSize(p.subType, resp)
+	if err != nil {
+		return nil, err
+	}
+	mr.ResponseTokenCount = responseTokenCount
+	mr.TotalTokenCount = promptTokenCount + responseTokenCount
 	p.caculatePrice(mr)
 
 	return mr, nil

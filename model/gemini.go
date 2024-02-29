@@ -104,6 +104,7 @@ func (p *GeminiModelProvider) QueryText(question string, writer io.Writer, histo
 
 	// get token count and price
 	mr := new(ModelResult)
+	// gemini only count total token
 	mr.TotalTokenCount = int(resp.Candidates[0].TokenCount)
 	p.caculatePrice(mr)
 
