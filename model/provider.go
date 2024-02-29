@@ -52,7 +52,7 @@ func GetModelProvider(typ string, subType string, clientId string, clientSecret 
 	} else if typ == "Hugging Face" {
 		p, err = NewHuggingFaceModelProvider(subType, clientSecret, temperature)
 	} else if typ == "Claude" {
-		// p, err = NewClaudeModelProvider(subType, clientSecret)
+		p, err = NewClaudeModelProvider(subType, clientSecret)
 	} else if typ == "OpenRouter" {
 		// p, err = NewOpenRouterModelProvider(subType, clientSecret, temperature, topP)
 	} else if typ == "Ernie" {
