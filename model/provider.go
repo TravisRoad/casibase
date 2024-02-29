@@ -46,7 +46,7 @@ func GetModelProvider(typ string, subType string, clientId string, clientSecret 
 	} else if typ == "OpenAI" {
 		p, err = NewOpenAiModelProvider(typ, subType, clientSecret, temperature, topP, frequencyPenalty, presencePenalty)
 	} else if typ == "Gemini" {
-		// p, err = NewGeminiModelProvider(subType, clientSecret, temperature, topP, topK)
+		p, err = NewGeminiModelProvider(subType, clientSecret, temperature, topP, topK)
 	} else if typ == "Azure" {
 		p, err = NewAzureModelProvider(typ, subType, clientId, clientSecret, temperature, topP, frequencyPenalty, presencePenalty, providerUrl, apiVersion)
 	} else if typ == "Hugging Face" {
