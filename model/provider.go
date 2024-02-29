@@ -62,7 +62,7 @@ func GetModelProvider(typ string, subType string, clientId string, clientSecret 
 	} else if typ == "ChatGLM" {
 		p, err = NewChatGLMModelProvider(subType, clientSecret)
 	} else if typ == "MiniMax" {
-		// p, err = NewMiniMaxModelProvider(subType, clientId, clientSecret, temperature)
+		p, err = NewMiniMaxModelProvider(subType, clientId, clientSecret, temperature)
 	} else if typ == "Cohere" {
 		p, err = NewCohereModelProvider(subType, clientSecret)
 	}

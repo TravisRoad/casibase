@@ -70,7 +70,7 @@ func (p *ErnieModelProvider) calculatePrice(mr *ModelResult) {
 		"Llama-2":         {0.006, 0.006}, // Llama-2-7B-Chat
 	}
 	if price, ok := priceTable[p.subType]; ok {
-		mr.TotalPrice = price[0]*float64(mr.PromptTokenCount) + price[1]*float64(mr.ResponseTokenCount)
+		mr.TotalPrice = (price[0]*float64(mr.PromptTokenCount) + price[1]*float64(mr.ResponseTokenCount)) / 1_000.0
 	} else {
 		// model not found
 		mr.TotalPrice = 0.0
