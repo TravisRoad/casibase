@@ -33,6 +33,7 @@ func newModelResult(promptTokenCount int, responseTokenCount int, totalTokenCoun
 }
 
 type ModelProvider interface {
+	// GetPricing returns the concurrency and pricing information
 	GetPricing() (string, string)
 	QueryText(question string, writer io.Writer, history []*RawMessage, prompt string, knowledgeMessages []*RawMessage) (*ModelResult, error)
 }
@@ -63,7 +64,7 @@ func GetModelProvider(typ string, subType string, clientId string, clientSecret 
 	} else if typ == "MiniMax" {
 		// p, err = NewMiniMaxModelProvider(subType, clientId, clientSecret, temperature)
 	} else if typ == "Cohere" {
-		// p, err = NewCohereModelProvider(subType, clientSecret)
+		p, err = NewCohereModelProvider(subType, clientSecret)
 	}
 	if err != nil {
 		return nil, err

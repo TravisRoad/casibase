@@ -51,7 +51,11 @@ func NewCohereModelProvider(subType string, secretKey string) (*CohereModelProvi
 	}, nil
 }
 
-func (c *CohereModelProvider) QueryText(message string, writer io.Writer, chat_history []*RawMessage, prompt string, knowledgeMessages []*RawMessage) error {
+func (c *CohereModelProvider) GetPricing() (string, string) {
+	return "USB", ``
+}
+
+func (c *CohereModelProvider) QueryText(message string, writer io.Writer, chat_history []*RawMessage, prompt string, knowledgeMessages []*RawMessage) (*ModelResult, error) {
 	client := cohereclient.NewClient(
 		cohereclient.WithToken(c.secretKey),
 	)
@@ -67,10 +71,10 @@ func (c *CohereModelProvider) QueryText(message string, writer io.Writer, chat_h
 		},
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if len(generation.Generations) == 0 {
-		return fmt.Errorf("no generations returned")
+		return nil, fmt.Errorf("no generations returned")
 	}
 
 	output := generation.Generations[0].Text
@@ -78,8 +82,8 @@ func (c *CohereModelProvider) QueryText(message string, writer io.Writer, chat_h
 
 	_, writeErr := fmt.Fprint(writer, resp)
 	if writeErr != nil {
-		return writeErr
+		return nil, writeErr
 	}
 
-	return nil
+	return nil, nil
 }
