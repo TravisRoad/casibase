@@ -44,7 +44,15 @@ https://www.anthropic.com/pricing
 }
 
 func (p *ClaudeModelProvider) caculatePrice(mr *ModelResult) {
-	mr.TotalPrice = 0.0
+	priceTable := map[string][]float64{
+		"claude-2": {0.80, 2.40},
+	}
+	if price, ok := priceTable[p.subType]; ok {
+		mr.TotalPrice = price[0]*float64(mr.PromptTokenCount) + price[1]*float64(mr.ResponseTokenCount)
+	} else {
+		// model not found
+		mr.TotalPrice = 0.0
+	}
 }
 
 func (p *ClaudeModelProvider) QueryText(question string, writer io.Writer, history []*RawMessage, prompt string, knowledgeMessages []*RawMessage) (*ModelResult, error) {
@@ -75,8 +83,18 @@ func (p *ClaudeModelProvider) QueryText(question string, writer io.Writer, histo
 	}
 
 	// get token count and price
-	// TODO: Claude API is in closed beta, cannot get the token count by API
 	mr := new(ModelResult)
+	promptTokenCount, err := GetTokenSize(p.subType, question)
+	if err != nil {
+		return nil, err
+	}
+	mr.PromptTokenCount = promptTokenCount
+	responseTokenCount, err := GetTokenSize(p.subType, response.Completion)
+	if err != nil {
+		return nil, err
+	}
+	mr.ResponseTokenCount = responseTokenCount
+	mr.TotalTokenCount = promptTokenCount + responseTokenCount
 	p.caculatePrice(mr)
 
 	return mr, nil
