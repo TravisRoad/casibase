@@ -29,6 +29,13 @@ var (
 	CohereDefaultTemperature float64 = 0.75
 )
 
+const (
+	CohereModelCommand             = "command"
+	CohereModelCommandNightly      = "command-nightly"
+	CohereModelCommandLight        = "command-light"
+	CohereModelCommandLightNightly = "command-light-nightly"
+)
+
 type CohereModelProvider struct {
 	secretKey   string
 	subType     string
@@ -51,8 +58,41 @@ func NewCohereModelProvider(subType string, secretKey string) (*CohereModelProvi
 	}, nil
 }
 
+// GetPricing returns the pricing of the model
+// https://cohere.com/pricing
 func (c *CohereModelProvider) GetPricing() (string, string) {
-	return "USB", ``
+	return "USB", `URL:
+https://cohere.com/pricing
+
+Generate Model:
+
+| Model            | Type          | Input Price (Per 1,000,000 tokens) | Output Price (Per 1,000,000 tokens) |
+|------------------|---------------|------------------------------------|-------------------------------------|
+| Default Model    | Command       | $1.00                              | $2.00                               |
+|                  | Command Light | $0.30                              | $0.60                               |
+| Fine-tuned Model | Training      | $1.00                              | N/A                                 |
+|                  | Command Light | $0.30                              | $0.60                               |
+
+Embed Model:
+
+| Model      | Cost (Per 1,000,000 tokens) |
+|------------|-----------------------------|
+| Default    | $0.10                       |
+`
+}
+
+func (c *CohereModelProvider) caculatePrice(mr *ModelResult) {
+	switch c.subType {
+	case CohereModelCommand, CohereModelCommandNightly:
+		mr.TotalPrice += float64(mr.PromptTokenCount) * 1.00 / 1_000_000
+		mr.TotalPrice += float64(mr.ResponseTokenCount) * 2.00 / 1_000_000
+	case CohereModelCommandLight, CohereModelCommandLightNightly:
+		mr.TotalPrice += float64(mr.PromptTokenCount) * 0.30 / 1_000_000
+		mr.TotalPrice += float64(mr.ResponseTokenCount) * 0.60 / 1_000_000
+	default:
+		mr.TotalPrice += float64(mr.PromptTokenCount) * 1.00 / 1_000_000
+		mr.TotalPrice += float64(mr.ResponseTokenCount) * 2.00 / 1_000_000
+	}
 }
 
 func (c *CohereModelProvider) QueryText(message string, writer io.Writer, chat_history []*RawMessage, prompt string, knowledgeMessages []*RawMessage) (*ModelResult, error) {
@@ -85,5 +125,12 @@ func (c *CohereModelProvider) QueryText(message string, writer io.Writer, chat_h
 		return nil, writeErr
 	}
 
-	return nil, nil
+	// caculate token
+	modelResult := new(ModelResult)
+	modelResult.PromptTokenCount = int(*generation.Meta.BilledUnits.InputTokens)
+	modelResult.ResponseTokenCount = int(*generation.Meta.BilledUnits.OutputTokens)
+	modelResult.TotalTokenCount = modelResult.ResponseTokenCount + modelResult.PromptTokenCount
+	c.caculatePrice(modelResult)
+
+	return modelResult, nil
 }
